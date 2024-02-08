@@ -66,7 +66,33 @@ begin
  end if;
 end
 
-
+--------------------------------------------
+--Compound Trigger
+--------------------------------------------
+create or replace trigger trg_total_discount
+ for insert or update on product_segment
+ compound trigger
+ v_total_discount number;
+ before statement is
+ begin
+ 
+ -- get the total discount 
+ select sum (discount) into v_total_discount 
+ from product_segment;
+ 
+ end before statement;
+ 
+ before each row is
+ begin
+ 
+ -- check total discount
+ if v_total_discount + :new.discount - :old.discount > 0.25 then 
+ :new.discount := :old.discount;
+ end if;
+ 
+ end before each row;
+ 
+end
 
 
 
